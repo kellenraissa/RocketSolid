@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    // Node + TS "padrão"
+    "target": "ES2020",
+    "module": "commonjs",
+    "moduleResolution": "node",
+
+    "rootDir": "./src",
+    "outDir": "./dist",
+
+    // Tipos do Node
+    "types": ["node"],
+
+    // Qualidade de tipos
+    "strict": true,
+    "skipLibCheck": true,
+
+    // Deixa imports "bonitos"
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+
+    // Geração de saída
+    "sourceMap": true,
+    "declaration": true,
+
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["src"]
+}
