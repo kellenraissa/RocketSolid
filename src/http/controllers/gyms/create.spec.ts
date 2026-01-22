@@ -2,6 +2,7 @@ import { createAndAuthenticateUser } from "@/utils/test/create-and-authenticate-
 import request from "supertest";
 import { app } from "@/app";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { prisma } from "@/lib/prisma";
 
 describe("Create gym (e2e)", () => {
   beforeAll(async () => {
@@ -12,6 +13,16 @@ describe("Create gym (e2e)", () => {
   });
 
   it("shoul be able to create gym", async () => {
+    const currentSchema: any = await prisma.$queryRawUnsafe(
+      "select current_schema() as schema",
+    );
+    console.log("APP current_schema:", currentSchema[0].schema);
+
+    const db: any = await prisma.$queryRawUnsafe(
+      "select current_database() as db",
+    );
+    console.log("APP current_database:", db[0].db);
+
     const { token } = await createAndAuthenticateUser(app);
 
     const response = await request(app.server)

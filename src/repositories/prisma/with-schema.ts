@@ -1,31 +1,29 @@
 import { PrismaClient } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
-function getSchemaFromUrl(): string | null {
+function getSchemaFromUrl(): string {
   const databaseUrl = process.env.DATABASE_URL;
-  if (!databaseUrl) return null;
-  
-  try {
-    const url = new URL(databaseUrl);
-    return url.searchParams.get("schema");
-  } catch {
-    return null;
+  if (!databaseUrl) throw new Error("DATABASE_URL not set");
+
+  const url = new URL(databaseUrl);
+  const schema = url.searchParams.get("schema");
+
+  if (process.env.NODE_ENV === "test" && !schema) {
+    throw new Error("E2E is missing ?schema= in DATABASE_URL");
   }
+
+  return schema ?? "public";
 }
 
-/**
- * Executa uma função dentro de uma transação com o schema correto configurado
- */
+import { Prisma } from "@prisma/client";
+
 export async function withSchema<T>(
-  fn: (tx: PrismaClient) => Promise<T>
+  fn: (tx: Prisma.TransactionClient) => Promise<T>,
 ): Promise<T> {
   const schema = getSchemaFromUrl();
-  
-  return await prisma.$transaction(async (tx) => {
-    if (schema) {
-      await tx.$executeRawUnsafe(`SET LOCAL search_path TO "${schema}"`);
-    }
-    
-    return await fn(tx);
+
+  return prisma.$transaction(async (tx) => {
+    await tx.$executeRawUnsafe(`SET LOCAL search_path TO "${schema}"`);
+    return fn(tx);
   });
 }

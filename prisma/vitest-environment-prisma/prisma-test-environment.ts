@@ -13,6 +13,8 @@ function generateDatabaseUrl(schema: string) {
 
   url.searchParams.set("schema", schema);
 
+  url.searchParams.set("options", `-c search_path=${schema}`);
+
   return url.toString();
 }
 
