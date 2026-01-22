@@ -1,7 +1,6 @@
 import "dotenv/config";
 import { execSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
-import { prisma } from "../../src/lib/prisma";
 
 import type { Environment } from "vitest/environments";
 
@@ -25,10 +24,20 @@ export default <Environment>{
     const schema = randomUUID();
     const databaseUrl = generateDatabaseUrl(schema);
 
+    // Configurar DATABASE_URL ANTES de importar o Prisma Client
     process.env.DATABASE_URL = databaseUrl;
     process.env.NODE_ENV = "test";
 
-    execSync("npx prisma migrate deploy");
+    execSync("npx prisma migrate deploy", {
+      env: {
+        ...process.env,
+        DATABASE_URL: databaseUrl,
+      },
+    });
+
+    // Importar e resetar o Prisma Client para usar a nova URL
+    const { prisma, resetPrismaClient } = await import("../../src/lib/prisma");
+    resetPrismaClient();
 
     return {
       async teardown() {
