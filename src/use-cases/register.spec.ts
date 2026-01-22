@@ -1,6 +1,5 @@
-import { expect, test, describe, it, beforeEach } from "vitest";
+import { expect, describe, it, beforeEach } from "vitest";
 import { RegisterUseCase } from "./register";
-import { PrismaUsersRepository } from "@/repositories/prisma/prisma-users-repository";
 import { compare } from "bcryptjs";
 import { InMemoryUsersRepository } from "@/repositories/in-memory/in-memory-users-repository";
 import { UserAlreadyExistsError } from "./errors/user-already-exists";
@@ -33,7 +32,7 @@ describe("Register Use Case", () => {
 
     const isPasswordCorectlyHashed = await compare(
       "123456",
-      user.password_hash
+      user.password_hash,
     );
 
     expect(isPasswordCorectlyHashed).toBe(true);
@@ -53,7 +52,7 @@ describe("Register Use Case", () => {
         name: "John Doe",
         email: email,
         password: "123456",
-      })
+      }),
     ).rejects.toBeInstanceOf(UserAlreadyExistsError);
   });
 });
