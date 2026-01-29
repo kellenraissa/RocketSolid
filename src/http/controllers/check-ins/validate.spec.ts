@@ -13,7 +13,7 @@ describe("Validate CheckIn (e2e)", () => {
   });
 
   it("shoul be able to validate checkIn", async () => {
-    const { token, email } = await createAndAuthenticateUser(app);
+    const { token, email } = await createAndAuthenticateUser(app, true);
     const user = await prisma.user.findUniqueOrThrow({
       where: { email },
     });

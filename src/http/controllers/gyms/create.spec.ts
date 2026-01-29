@@ -23,7 +23,7 @@ describe("Create gym (e2e)", () => {
     );
     console.log("APP current_database:", db[0].db);
 
-    const { token } = await createAndAuthenticateUser(app);
+    const { token } = await createAndAuthenticateUser(app, true);
 
     const response = await request(app.server)
       .post("/gyms")

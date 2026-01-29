@@ -1,13 +1,11 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { z } from "zod";
-import { PrismaUsersRepository } from "@/repositories/prisma/prisma-users-repository";
-import { AuthenticateUseCase } from "@/use-cases/authenticate";
 import { InvalidCredentialsError } from "@/use-cases/errors/invalid-credentials-error";
 import { makeAuthenticateUseCase } from "@/use-cases/factories/make-authenticate-use-case";
 
 export async function authenticate(
   request: FastifyRequest,
-  reply: FastifyReply
+  reply: FastifyReply,
 ) {
   const authenticateBodySchema = z.object({
     email: z.string().email(),
@@ -24,15 +22,37 @@ export async function authenticate(
     });
 
     const token = await reply.jwtSign(
-      {},
+      {
+        role: user.role,
+      },
       {
         sign: {
           sub: user.id,
         },
-      }
+      },
     );
 
-    return reply.status(200).send({ token });
+    const refreshToken = await reply.jwtSign(
+      {
+        role: user.role,
+      },
+      {
+        sign: {
+          sub: user.id,
+          expiresIn: "7d",
+        },
+      },
+    );
+
+    return reply
+      .setCookie("refreshToken", refreshToken, {
+        path: "/",
+        secure: true, // HTTPS
+        sameSite: true,
+        httpOnly: true,
+      })
+      .status(200)
+      .send({ token });
   } catch (error) {
     if (error instanceof InvalidCredentialsError) {
       return reply.status(400).send({ message: error.message });

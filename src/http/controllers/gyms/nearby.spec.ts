@@ -19,7 +19,7 @@ describe("Nearby Gyms (e2e)", () => {
   });
 
   it("shoul be able to list nearby gyms", async () => {
-    const { token } = await createAndAuthenticateUser(app);
+    const { token } = await createAndAuthenticateUser(app, true);
 
     const currentSchema: any = await prisma.$queryRawUnsafe(
       "select current_schema() as schema",
