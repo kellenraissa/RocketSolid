@@ -17,4 +17,8 @@ jobs:
 
       - run: npm ci
 
+      - run: npx prisma generate --schema=prisma/schema.prisma
+        env:
+          DATABASE_URL: "postgresql://user:pass@localhost:5432/db?schema=public"
+
       - run: npm run test
