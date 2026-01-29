@@ -1,7 +1,4 @@
-import { UsersRepository } from "@/repositories/users-repository";
-import { InvalidCredentialsError } from "./errors/invalid-credentials-error";
-import { compare } from "bcryptjs";
-import { CheckIn, User } from "@prisma/client";
+import { CheckIn } from "@prisma/client";
 import { CheckInsRepository } from "@/repositories/check-ins-repository";
 import { GymsRepository } from "@/repositories/gyms-repository";
 import { ResourceNotFoundError } from "./errors/resource-not-found-error";
@@ -23,7 +20,7 @@ interface CheckInUseCaseResponse {
 export class CheckInUseCase {
   constructor(
     private checkInsRepository: CheckInsRepository,
-    private gymsRepository: GymsRepository
+    private gymsRepository: GymsRepository,
   ) {}
 
   async execute({
@@ -40,7 +37,10 @@ export class CheckInUseCase {
 
     const distance = getDistanceBetweenCoordinates(
       { latitude: userLatitude, longitude: userLongitude },
-      { latitude: gym.latitude.toNumber(), longitude: gym.longitude.toNumber() }
+      {
+        latitude: gym.latitude.toNumber(),
+        longitude: gym.longitude.toNumber(),
+      },
     );
 
     const MAX_DISTANCE_In_KILOMETRES = 0.1; // 100m
@@ -51,7 +51,7 @@ export class CheckInUseCase {
 
     const checkInOnSameDay = await this.checkInsRepository.findByUserIdOrDate(
       userId,
-      new Date()
+      new Date(),
     );
 
     if (checkInOnSameDay) {
